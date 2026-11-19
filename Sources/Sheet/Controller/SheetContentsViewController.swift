@@ -110,7 +110,8 @@ open class SheetContentsViewController: UICollectionViewController, SheetContent
     open override func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         let velocity = scrollView.panGestureRecognizer.velocity(in: nil)
         if scrollView.contentOffset.y <= -10 && velocity.y >= 400 {
-            let diff = UIScreen.main.bounds.height - topMargin
+            let height = sheetNavigationController?.view.bounds.height ?? view.bounds.height
+            let diff = max(height - topMargin, 0)
             let duration = min(0.3, diff / velocity.y)
             sheetNavigationController?.close(duration: TimeInterval(duration))
         }

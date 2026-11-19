@@ -108,7 +108,7 @@ public class SheetNavigationController: UINavigationController {
 
         UIView.animateKeyframes(withDuration: duration, delay: 0, options: [.calculationModeLinear], animations: {
             UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: 1) {
-                let diff = UIScreen.main.bounds.height - topMargin
+                let diff = max(self.view.bounds.height - topMargin, 0)
                 snapShot.transform = CGAffineTransform(translationX: 0, y: diff)
                 self.backgroundView?.alpha = 0
                 self.presentingViewController?.view.transform = .identity
@@ -206,7 +206,7 @@ private extension SheetNavigationController {
     func updateSheetToolBar(toolBarView: UIView?) {
         var toolBarTemp = toolBarView
         if toolBarTemp == nil {
-            let closeButton = UIButton(type: .system)
+            let closeButton = SheetToolBarButton(type: .system)
             let title = viewControllers.count == 1 ? options.defaultToolBarItem.defaultCloseTitle : options.defaultToolBarItem.defaultBackTitle
             closeButton.setTitle(title, for: .normal)
             closeButton.titleLabel?.font = options.defaultToolBarItem.font
@@ -214,10 +214,8 @@ private extension SheetNavigationController {
             closeButton.addTarget(self, action: #selector(tappedDefaultButton), for: .touchUpInside)
             
             if !options.defaultToolBarItem.isLineHidden {
-                let border = CALayer()
-                border.backgroundColor = options.defaultToolBarItem.lineColor.cgColor
-                border.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 0.5)
-                closeButton.layer.addSublayer(border)
+                closeButton.topBorder.backgroundColor = options.defaultToolBarItem.lineColor.cgColor
+                closeButton.layer.addSublayer(closeButton.topBorder)
             }
             
             toolBarTemp = closeButton
@@ -244,6 +242,18 @@ private extension SheetNavigationController {
                 containerView.subviews.first?.removeFromSuperview()
             }
         }
+    }
+}
+
+private final class SheetToolBarButton: UIButton {
+    let topBorder = CALayer()
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        topBorder.frame = CGRect(x: 0, y: 0, width: bounds.width, height: 0.5)
+        CATransaction.commit()
     }
 }
 
